@@ -1,17 +1,13 @@
 # Source-to-view provenance
 
-1. Original SceneFun3D research dataset, CVPR 2024.
-2. Voxel51 Hugging Face conversion, revision `76803371aae67277cfa0cc29804db2368c6756ce`.
-3. `data/421061.pcd` and `samples.json` fetched at the pinned revision.
-4. Point-cloud SHA-256: `f368d72b10c95d5b72f9c0d86b20c514cd4ecfb133d539e3ec1f178c3e7d1a38`.
-5. Decode little-endian binary fields. Interpret the RGB storage as packed bits.
-6. Select 18,000 evenly spaced source row indices, first and last included.
-7. Subtract one common origin from every spatial location. Preserve directions and dimensions.
-8. Join annotation labels, boxes and task text by source annotation ID; create P01–P12 display IDs.
-9. Browser projects these coordinates, highlights one annotation and displays source metadata.
+1. Use the public `airports` subset from `anomalypoint/NEExT` at revision `36114f8da77d4fe5b4700a7ff2673b15901a6caf`.
+2. Retain the three independent graph folders: `brazil`, `europe`, and `usa`.
+3. Copy `nodes.csv` and `edges.csv` without changing their published fields or values.
+4. Parse node IDs as strings for lossless browser lookup and parse `activity_quartile` as integer labels 0–3.
+5. Treat edges as undirected, remove self-loops if present, and deduplicate endpoint pairs. The resulting counts match the published NEExT data card.
+6. Compute node degree from the retained edge list.
+7. Compute a deterministic two-dimensional NetworkX spring layout with the energy optimizer and scale each axis to [0, 1] using robust 1st/99th-percentile bounds.
+8. Save browser-ready JSON and a manifest containing source URLs, revision, graph counts, and SHA-256 checksums for the copied CSVs.
+9. Render routes and airports in Canvas. Map raw labels 0–3 to display labels Q1–Q4 and four colors; map degree to node radius.
 
-The manifest includes the metadata checksum and original coordinate origin. The preparation notebook reproduces decoding, count checks, translation and metadata inspection. `scene.json` carries the full display sample. Rendered apparent size depends on view and zoom; no scale bar or world-unit claim is inferred from the display alone.
-
-Graph edges are typed: scene **contains** part; part **has annotated affordance** label; part **has task description** text. No object hierarchy, physical execution or success probability is inferred.
-
-Annotation semantics: the source label `exclude` marks insufficiently captured geometry and is omitted from source evaluation. It is not an affordance class. See the [original annotation documentation](https://scenefun3d.github.io/documentation/dataset/annotations/).
+The script [`scripts/prepare_airport_data.py`](../scripts/prepare_airport_data.py) reproduces steps 4–8. The layout is a display algorithm, not source evidence. It adds no airport name, location, route direction, route frequency, or traffic-volume claim.

@@ -1,21 +1,202 @@
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const esc=x=>String(x??'not supplied').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-$$('[data-tab]').forEach(b=>b.addEventListener('click',()=>{$$('[data-tab]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));$$('.tab-panel').forEach(x=>x.hidden=x.id!==b.dataset.tab);window.dispatchEvent(new Event('resize'));}));
-let data,network,selection=0,yaw=-.7,pitch=.55,zoom=1,drag=null,view='node',chosen='D';
-const cv=$('#scene'),ctx=cv.getContext('2d');
-function size(){const r=cv.getBoundingClientRect();if(!r.width)return;cv.width=r.width*devicePixelRatio;cv.height=r.height*devicePixelRatio;draw();}
-function project(p){const x=p[0]*Math.cos(yaw)-p[1]*Math.sin(yaw),q=p[0]*Math.sin(yaw)+p[1]*Math.cos(yaw);const y=p[2]*Math.cos(pitch)-q*Math.sin(pitch),z=p[2]*Math.sin(pitch)+q*Math.cos(pitch);const s=Math.min(cv.width,cv.height)*.11*zoom;return[cv.width/2+x*s,cv.height/2-y*s,z];}
-function segment(a,b,color,width=2){const p=project(a),q=project(b);ctx.strokeStyle=color;ctx.lineWidth=width*devicePixelRatio;ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.stroke();}
-function draw(){if(!data||!cv.width)return;ctx.fillStyle='#102a43';ctx.fillRect(0,0,cv.width,cv.height);const projected=data.points.map(p=>[...project(p),p]);projected.sort((a,b)=>a[2]-b[2]);for(const[x,y,z,p]of projected){ctx.fillStyle=`rgb(${p[3]},${p[4]},${p[5]})`;ctx.fillRect(x,y,1.6*devicePixelRatio,1.6*devicePixelRatio);}const part=data.parts[selection];if($('#boxes').checked&&part){const c=part.location,d=part.dimensions;let corners=[];for(let i=0;i<8;i++)corners.push(c.map((v,j)=>v+((i>>j)&1?1:-1)*d[j]/2));for(let i=0;i<8;i++)for(let j=0;j<3;j++)if(!((i>>j)&1))segment(corners[i],corners[i|(1<<j)],part.label==='exclude'?'#fb923c':'#4af4c5');const v=part.motion_dir,o=part.motion_origin||c;if(v&&v.length===3){const n=Math.hypot(...v)||1;segment(o,o.map((a,j)=>a+v[j]/n*.6),'#fbbf24',3);}const[x,y]=project(c);ctx.fillStyle='#4af4c5';ctx.beginPath();ctx.arc(x,y,5*devicePixelRatio,0,Math.PI*2);ctx.fill();ctx.font=`${13*devicePixelRatio}px system-ui`;ctx.fillText(part.short_id,x+10*devicePixelRatio,y-8*devicePixelRatio);} }
-function taskTexts(p){return(p.descriptions||[]).map(x=>typeof x==='string'?x:JSON.stringify(x));}
-function updatePart(){const p=data.parts[selection],tasks=taskTexts(p),excluded=p.label==='exclude';$('#part-detail').innerHTML=`<div class="detail-label">Source label</div><p class="detail-value">${esc(p.label)}${excluded?' · excluded from source evaluation (poorly captured geometry)':''}</p><div class="detail-label">Motion annotation</div><p class="detail-value">${esc(p.motion_type)} ${p.motion_type==='rot'?'· rotation':p.motion_type==='trans'?'· translation':''}</p><div class="detail-label">Source task text</div><p class="detail-value">${tasks.map(esc).join('<br>')||'No description supplied'}</p><div class="detail-label">Source annotation ID</div><p class="detail-value" style="font-size:10px">${esc(p.id)}</p>`;$('#part-graph').innerHTML=`<div class="graph-node"><span>SCENE</span><strong>421061</strong></div><div class="graph-edge">contains →</div><div class="graph-node"><span>PART</span><strong>${esc(p.short_id)}</strong></div><div class="graph-edge">annotated as →</div><div class="graph-node"><span>${excluded?'EXCLUSION LABEL':'AFFORDANCE'}</span><strong>${esc(p.label)}</strong></div><div class="graph-tasks">${esc(p.short_id)} → has task description → ${tasks.map(esc).join('; ')||'(none supplied)'}</div>`;draw();}
-$('#part').addEventListener('change',e=>{selection=Number(e.target.value);updatePart();});$('#boxes').addEventListener('change',draw);
-const orbit=d=>{yaw+=d;draw();};const magnify=f=>{zoom=Math.max(.3,Math.min(7,zoom*f));draw();};$('#left').onclick=()=>orbit(-.2);$('#right').onclick=()=>orbit(.2);$('#zoomIn').onclick=()=>magnify(1.2);$('#zoomOut').onclick=()=>magnify(1/1.2);$('#reset').onclick=()=>{yaw=-.7;pitch=.55;zoom=1;draw();};
-cv.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];cv.setPointerCapture(e.pointerId);});cv.addEventListener('pointermove',e=>{if(!drag)return;yaw+=(e.clientX-drag[0])*.008;pitch=Math.max(-1.4,Math.min(1.4,pitch+(e.clientY-drag[1])*.008));drag=[e.clientX,e.clientY];draw();});cv.addEventListener('pointerup',()=>drag=null);cv.addEventListener('pointercancel',()=>drag=null);cv.addEventListener('wheel',e=>{e.preventDefault();magnify(Math.exp(-e.deltaY*.001));},{passive:false});cv.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','='].includes(e.key))e.preventDefault();if(e.key==='ArrowLeft')orbit(-.15);if(e.key==='ArrowRight')orbit(.15);if(e.key==='ArrowUp'){pitch=Math.min(1.4,pitch+.1);draw();}if(e.key==='ArrowDown'){pitch=Math.max(-1.4,pitch-.1);draw();}if(e.key==='+'||e.key==='=')magnify(1.1);if(e.key==='-')magnify(1/1.1);});window.addEventListener('resize',size);
-function adjacent(id){return network.edges.filter(e=>e.source===id||e.target===id).map(e=>e.source===id?e.target:e.source).sort();}
-function treeEdges(){const seen=new Set(['A']),q=['A'],edges=[];while(q.length){const a=q.shift();for(const b of adjacent(a))if(!seen.has(b)){seen.add(b);q.push(b);edges.push({source:a,target:b});}}return edges;}
-function graph(){if(!network)return;const nodes=network.nodes,colors=['#2563eb','#0d9f83','#7c3aed'];let out='';if(view==='matrix'){for(let i=0;i<8;i++){const n=nodes[i];out+=`<g role="button" tabindex="0" data-node="${n.id}" aria-label="Inspect ${n.label}"><text x="${110+i*41}" y="48" text-anchor="middle">${n.id}</text><text x="63" y="${83+i*41}">${n.id}</text></g>`;for(let j=0;j<8;j++){const hit=adjacent(n.id).includes(nodes[j].id);out+=`<rect x="${90+j*41}" y="${59+i*41}" width="39" height="39" fill="${hit?(n.id===chosen?'#0d9f83':'#2563eb'):'#edf2f7'}"/><text x="${110+j*41}" y="${83+i*41}" text-anchor="middle" fill="${hit?'white':'#627d98'}" font-size="12">${hit?1:0}</text>`;}}$('#graph-question').textContent='Compare row D with row F.';}else{let pos={};if(view==='tree'){pos={A:[275,45],B:[115,150],G:[290,150],H:[435,150],C:[70,265],D:[180,265],F:[320,265],E:[180,365]};}else{nodes.forEach((n,i)=>pos[n.id]=[275+165*Math.cos(i*Math.PI/4),205+155*Math.sin(i*Math.PI/4)]);}const edges=view==='tree'?treeEdges():network.edges;for(const e of edges){const a=pos[e.source],b=pos[e.target];out+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${[e.source,e.target].includes(chosen)?'#0d9f83':'#b6c6d4'}" stroke-width="${[e.source,e.target].includes(chosen)?3:1.5}"/>`;}for(const n of nodes){const[x,y]=pos[n.id];out+=`<g role="button" tabindex="0" data-node="${n.id}" aria-label="Inspect ${n.label}"><circle cx="${x}" cy="${y}" r="25" fill="${colors[n.group]}" stroke="${chosen===n.id?'#102a43':'white'}" stroke-width="4"/><text x="${x}" y="${y+5}" text-anchor="middle" fill="white" font-weight="700">${n.id}</text><text x="${x}" y="${y+44}" text-anchor="middle" font-size="12">${esc(n.label)}</text></g>`;}$('#graph-question').textContent=view==='tree'?'Which relationships disappeared?':'Trace A → B → D.';}
-$('#network-viz').innerHTML=`<svg viewBox="0 0 560 430" aria-label="${view==='matrix'?'Adjacency matrix':view==='tree'?'Breadth-first spanning tree rooted at A':'Node-link evidence network'}" style="font-family:system-ui;fill:#102a43">${out}</svg>`;$$('[data-node]').forEach(x=>{const activate=()=>{chosen=x.dataset.node;graph();};x.onclick=activate;x.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};});const n=nodes.find(x=>x.id===chosen);$('#network-detail').innerHTML=`<h3>${esc(chosen)} / ${esc(n.label)}</h3><p>Neighbors: ${adjacent(chosen).join(', ')}<br>Degree in original graph: ${adjacent(chosen).length}</p>${view==='tree'?'<p class="note">This BFS tree keeps 7 of 11 edges. It is a derived traversal, not a claim that the original network is a hierarchy.</p>':''}`;}
-for(const[id,type]of[['node-view','node'],['matrix-view','matrix'],['tree-view','tree']])$('#'+id).onclick=()=>{view=type;$$('.segmented button').forEach(b=>b.setAttribute('aria-pressed',String(b.id===id)));graph();};
-async function load(){try{const responses=await Promise.all([fetch('data/scene.json'),fetch('data/network.json')]);if(responses.some(r=>!r.ok))throw new Error('Bundled data unavailable');[data,network]=await Promise.all(responses.map(r=>r.json()));$('#part').innerHTML=data.parts.map((p,i)=>`<option value="${i}">${esc(p.short_id)} · ${esc(p.label)}</option>`).join('');$('#scene-status').textContent=`${data.sampling.sample_point_count.toLocaleString()} sampled points / 7 affordance / 5 exclude annotations`;$('#parts-table tbody').innerHTML=data.parts.map(p=>`<tr><td>${esc(p.short_id)}</td><td>${esc(p.label)}</td><td>${esc(p.motion_type)}</td><td>${taskTexts(p).map(esc).join('; ')}</td><td>${p.location.map(x=>x.toFixed(3)).join(', ')}</td></tr>`).join('');$('#edge-table').innerHTML='<table><thead><tr><th>Source</th><th>Target</th></tr></thead><tbody>'+network.edges.map(e=>`<tr><td>${e.source}</td><td>${e.target}</td></tr>`).join('')+'</tbody></table>';updatePart();size();graph();}catch(e){$('#scene-status').textContent='Data could not load. Run the local server described in README; direct file:// opening is unsupported.';$('#part-detail').textContent=e.message;}}
-load();
+const $ = selector => document.querySelector(selector);
+const $$ = selector => [...document.querySelectorAll(selector)];
+const colors = ['#60a5fa', '#2dd4bf', '#fbbf24', '#f472b6'];
+
+const canvas = $('#network-canvas');
+const ctx = canvas.getContext('2d');
+let graph;
+let region = 'brazil';
+let selected = null;
+let hover = null;
+let activeQuartiles = new Set([0, 1, 2, 3]);
+let transform = { scale: 1, x: 0, y: 0 };
+let pointer = null;
+let screenNodes = [];
+
+const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+const format = value => Number(value).toLocaleString();
+
+function fitPoint(node) {
+  const width = canvas.width / devicePixelRatio;
+  const height = canvas.height / devicePixelRatio;
+  const padding = Math.min(width, height) * 0.08;
+  const baseX = padding + node.x * (width - padding * 2);
+  const baseY = padding + node.y * (height - padding * 2);
+  return [width / 2 + (baseX - width / 2) * transform.scale + transform.x, height / 2 + (baseY - height / 2) * transform.scale + transform.y];
+}
+
+function nodeRadius(node) { return Math.min(12, 2.8 + Math.sqrt(node.degree) * 0.55); }
+function isVisible(node) { return activeQuartiles.has(node.quartile); }
+
+function neighborSet(index) {
+  const set = new Set();
+  if (index === null) return set;
+  for (const [source, target] of graph.edges) {
+    if (source === index) set.add(target);
+    if (target === index) set.add(source);
+  }
+  return set;
+}
+
+function draw() {
+  if (!graph || !canvas.width) return;
+  const ratio = devicePixelRatio;
+  const width = canvas.width / ratio;
+  const height = canvas.height / ratio;
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+  const positions = graph.nodes.map(fitPoint);
+  const neighbors = neighborSet(selected);
+  ctx.lineCap = 'round';
+
+  for (const [source, target] of graph.edges) {
+    const aNode = graph.nodes[source], bNode = graph.nodes[target];
+    if (!isVisible(aNode) || !isVisible(bNode)) continue;
+    const incident = selected !== null && (source === selected || target === selected);
+    ctx.strokeStyle = incident ? 'rgba(125, 211, 252, .92)' : selected !== null ? 'rgba(148, 163, 184, .035)' : 'rgba(148, 163, 184, .13)';
+    ctx.lineWidth = incident ? 1.6 : 0.55;
+    ctx.beginPath(); ctx.moveTo(...positions[source]); ctx.lineTo(...positions[target]); ctx.stroke();
+  }
+
+  screenNodes = [];
+  graph.nodes.forEach((node, index) => {
+    if (!isVisible(node)) return;
+    const [x, y] = positions[index];
+    const radius = nodeRadius(node);
+    const related = selected === null || index === selected || neighbors.has(index);
+    ctx.globalAlpha = related ? 0.96 : 0.13;
+    ctx.fillStyle = colors[node.quartile];
+    ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
+    if (index === selected || index === hover) {
+      ctx.strokeStyle = index === selected ? '#ffffff' : '#cbd5e1';
+      ctx.lineWidth = index === selected ? 3 : 2;
+      ctx.stroke();
+    }
+    screenNodes.push({ index, x, y, radius: Math.max(radius, 7) });
+  });
+  ctx.globalAlpha = 1;
+
+  if ($('#show-labels').checked) {
+    const hubs = [...graph.nodes].sort((a, b) => b.degree - a.degree).slice(0, region === 'usa' ? 10 : 8);
+    const labels = new Set(hubs.map(node => node.id));
+    if (selected !== null) labels.add(graph.nodes[selected].id);
+    graph.nodes.forEach((node, index) => {
+      if (!labels.has(node.id) || !isVisible(node)) return;
+      const [x, y] = positions[index];
+      ctx.font = '600 11px "DM Sans", system-ui, sans-serif';
+      ctx.fillStyle = '#e2e8f0'; ctx.textAlign = 'left';
+      ctx.fillText(node.id, x + nodeRadius(node) + 4, y + 4);
+    });
+  }
+}
+
+function resize() {
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width) return;
+  canvas.width = Math.round(rect.width * devicePixelRatio);
+  canvas.height = Math.round(rect.height * devicePixelRatio);
+  draw();
+}
+
+function updateNodeDetail() {
+  if (selected === null) return;
+  const node = graph.nodes[selected];
+  const neighbors = [...neighborSet(selected)];
+  const byQuartile = [0, 0, 0, 0];
+  neighbors.forEach(index => byQuartile[graph.nodes[index].quartile]++);
+  $('#node-detail').innerHTML = `<div class="selected-node"><div class="node-orb q${node.quartile}">${esc(node.id)}</div><div><span class="detail-label">SELECTED AIRPORT NODE</span><h3>ID ${esc(node.id)}</h3></div></div><div class="node-stats"><div><span>Activity quartile</span><strong>Q${node.quartile + 1} <small>label ${node.quartile}</small></strong></div><div><span>Direct routes / degree</span><strong>${format(node.degree)}</strong></div></div><div class="neighbor-mix"><span class="detail-label">NEIGHBORS BY QUARTILE</span>${byQuartile.map((count, quartile) => `<div><i class="q${quartile}"></i><span>Q${quartile + 1}</span><strong>${format(count)}</strong></div>`).join('')}</div>`;
+  $('#node-search').value = node.id;
+}
+
+function updateSummary() {
+  const n = graph.meta.node_count, m = graph.meta.edge_count;
+  $('#region-name').textContent = graph.meta.display_name;
+  $('#node-count').textContent = format(n); $('#edge-count').textContent = format(m);
+  $('#density').textContent = (2 * m / (n * (n - 1)) * 100).toFixed(2) + '%';
+  $('#mean-degree').textContent = (2 * m / n).toFixed(1);
+  $('#network-status').textContent = `${format(n)} airports · ${format(m)} commercial routes`;
+
+  const maxMean = Math.max(...graph.quartiles.map(item => item.mean_degree));
+  $('#quartile-profile').innerHTML = graph.quartiles.map(item => `<div class="profile-row"><div class="profile-label"><i class="q${item.label}"></i><strong>Q${item.label + 1}</strong><span>label ${item.label}</span></div><div class="profile-track"><span class="q${item.label}" style="width:${item.mean_degree / maxMean * 100}%"></span></div><div class="profile-value"><strong>${item.mean_degree}</strong><span>mean degree · ${item.count} nodes</span></div></div>`).join('');
+
+  const top = [...graph.nodes].sort((a, b) => b.degree - a.degree).slice(0, 12);
+  $('#hub-table').innerHTML = top.map(node => `<tr><td><button class="table-node">${esc(node.id)}</button></td><td><span class="table-quartile q${node.quartile}">Q${node.quartile + 1}</span> <small>(label ${node.quartile})</small></td><td>${format(node.degree)}</td><td>${(node.degree / graph.meta.edge_count * 100).toFixed(2)}%</td></tr>`).join('');
+  $$('.table-node').forEach(button => button.addEventListener('click', () => selectById(button.textContent)));
+  $('#downloads').innerHTML = `Download ${esc(graph.meta.display_name)} data: <a href="data/airports/${region}-nodes.csv">nodes.csv</a> · <a href="data/airports/${region}-edges.csv">edges.csv</a> · <a href="data/airports/${region}.json">visualization JSON</a>`;
+  $('#node-options').innerHTML = graph.nodes.map(node => `<option value="${esc(node.id)}"></option>`).join('');
+}
+
+function selectById(id) {
+  const index = graph.nodes.findIndex(node => node.id === String(id).trim());
+  if (index < 0) { $('#search-message').textContent = `Node “${id}” is not in the ${graph.meta.display_name} network.`; return; }
+  selected = index; activeQuartiles.add(graph.nodes[index].quartile); updateFilterButtons();
+  $('#search-message').textContent = ''; updateNodeDetail(); draw(); canvas.focus();
+}
+
+function updateFilterButtons() {
+  $$('.quartile-filter').forEach(button => button.setAttribute('aria-pressed', String(activeQuartiles.has(Number(button.dataset.quartile)))));
+}
+
+async function loadRegion(nextRegion) {
+  region = nextRegion; $('#network-status').textContent = 'Loading network…';
+  try {
+    const response = await fetch(`data/airports/${region}.json`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    graph = await response.json(); activeQuartiles = new Set([0, 1, 2, 3]); transform = { scale: 1, x: 0, y: 0 }; selected = null;
+    $$('[data-region]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.region === region)));
+    updateFilterButtons(); updateSummary();
+    $('#node-search').value = '';
+    $('#node-detail').innerHTML = '<p class="empty-state">Select an airport node to highlight its direct commercial routes.</p>';
+    resize();
+  } catch (error) {
+    $('#network-status').textContent = 'Data could not load';
+    $('#node-detail').innerHTML = `<p class="error">${esc(error.message)}. Run the HTTP server described in README; direct file:// opening is unsupported.</p>`;
+  }
+}
+
+$$('[data-region]').forEach(button => button.addEventListener('click', () => loadRegion(button.dataset.region)));
+$$('.quartile-filter').forEach(button => button.addEventListener('click', () => {
+  const quartile = Number(button.dataset.quartile);
+  if (activeQuartiles.has(quartile) && activeQuartiles.size > 1) activeQuartiles.delete(quartile); else activeQuartiles.add(quartile);
+  if (selected !== null && !activeQuartiles.has(graph.nodes[selected].quartile)) selected = null;
+  updateFilterButtons();
+  if (selected === null) $('#node-detail').innerHTML = '<p class="empty-state">Select a visible airport node to inspect its routes.</p>';
+  draw();
+}));
+
+$('#node-search-form').addEventListener('submit', event => { event.preventDefault(); selectById($('#node-search').value); });
+$('#show-labels').addEventListener('change', draw);
+$('#zoom-in').addEventListener('click', () => { transform.scale = Math.min(8, transform.scale * 1.25); draw(); });
+$('#zoom-out').addEventListener('click', () => { transform.scale = Math.max(0.6, transform.scale / 1.25); draw(); });
+$('#reset-view').addEventListener('click', () => { transform = { scale: 1, x: 0, y: 0 }; draw(); });
+
+canvas.addEventListener('pointerdown', event => { pointer = { x: event.clientX, y: event.clientY, originX: event.clientX, originY: event.clientY, panX: transform.x, panY: transform.y }; canvas.setPointerCapture(event.pointerId); });
+canvas.addEventListener('pointermove', event => {
+  const rect = canvas.getBoundingClientRect(), localX = event.clientX - rect.left, localY = event.clientY - rect.top;
+  hover = screenNodes.find(node => Math.hypot(node.x - localX, node.y - localY) <= node.radius + 3)?.index ?? null;
+  canvas.style.cursor = pointer ? 'grabbing' : hover !== null ? 'pointer' : 'grab';
+  if (pointer) { transform.x = pointer.panX + event.clientX - pointer.x; transform.y = pointer.panY + event.clientY - pointer.y; }
+  draw();
+});
+canvas.addEventListener('pointerup', event => {
+  if (pointer && Math.hypot(event.clientX - pointer.originX, event.clientY - pointer.originY) < 5 && hover !== null) { selected = hover; updateNodeDetail(); }
+  pointer = null; draw();
+});
+canvas.addEventListener('pointerleave', () => { hover = null; if (!pointer) draw(); });
+canvas.addEventListener('wheel', event => {
+  event.preventDefault();
+  const rect = canvas.getBoundingClientRect(), mx = event.clientX - rect.left, my = event.clientY - rect.top;
+  const oldScale = transform.scale, nextScale = Math.max(0.6, Math.min(8, oldScale * Math.exp(-event.deltaY * 0.001)));
+  transform.x = mx - (mx - transform.x - rect.width / 2) * nextScale / oldScale - rect.width / 2;
+  transform.y = my - (my - transform.y - rect.height / 2) * nextScale / oldScale - rect.height / 2;
+  transform.scale = nextScale; draw();
+}, { passive: false });
+canvas.addEventListener('keydown', event => {
+  const moves = { ArrowLeft: [24, 0], ArrowRight: [-24, 0], ArrowUp: [0, 24], ArrowDown: [0, -24] };
+  if (moves[event.key]) { event.preventDefault(); transform.x += moves[event.key][0]; transform.y += moves[event.key][1]; draw(); }
+  if (event.key === '+' || event.key === '=') { event.preventDefault(); transform.scale = Math.min(8, transform.scale * 1.2); draw(); }
+  if (event.key === '-') { event.preventDefault(); transform.scale = Math.max(0.6, transform.scale / 1.2); draw(); }
+});
+
+window.addEventListener('resize', resize);
+loadRegion(region);

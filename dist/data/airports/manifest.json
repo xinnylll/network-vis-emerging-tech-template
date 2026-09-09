@@ -1,0 +1,36 @@
+{
+  "dataset": "anomalypoint/NEExT",
+  "subset": "airports",
+  "revision": "36114f8da77d4fe5b4700a7ff2673b15901a6caf",
+  "source_url": "https://huggingface.co/datasets/anomalypoint/NEExT",
+  "license": "MIT (upstream struc2vec repository; see dataset card)",
+  "graphs": [
+    {
+      "region": "brazil",
+      "display_name": "Brazil",
+      "nodes": 131,
+      "edges": 1003,
+      "classes": 4,
+      "node_csv_sha256": "d4929027e5d5b25268979944c3e01586013491a84d677902abd1a3a165bfd8ca",
+      "edge_csv_sha256": "d3220506098ff457acd623aa8c8f4fc16f44a9279d2d8bc7122541fae44a5ab4"
+    },
+    {
+      "region": "europe",
+      "display_name": "Europe",
+      "nodes": 399,
+      "edges": 5993,
+      "classes": 4,
+      "node_csv_sha256": "993e796f7b3d00348e1f02571df8833f61f84d9f27fd689863346c6a1a2dae2d",
+      "edge_csv_sha256": "3d210957e4be3bc801fea2b57f7c64b6461de246ab59ec4e2799b1f2c9daa1f3"
+    },
+    {
+      "region": "usa",
+      "display_name": "United States",
+      "nodes": 1190,
+      "edges": 13599,
+      "classes": 4,
+      "node_csv_sha256": "706637821a4a750e3fe9d09a36bc8ede6f93582badc27fa32d549c28df821eb2",
+      "edge_csv_sha256": "9606eb0c8ed4a4a5dee3236f87459bd6eba64768a4604c064d8678ad84b63a35"
+    }
+  ]
+}

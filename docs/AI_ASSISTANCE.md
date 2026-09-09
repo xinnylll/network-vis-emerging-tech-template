@@ -1,20 +1,20 @@
 # AI assistance and human verification
 
-This starter was authored with an OpenAI coding assistant. Assistance covered source research, schema decoding, code and notebook drafting, document structure, and validation suggestions. The release records actual source revision, source hashes, executed Python calculations and code checks. No AI-created labels replace the source data. No trained model runs in the demo.
+An OpenAI coding assistant helped adapt the starter into the NEExT airport network visualization. Assistance included reading the public dataset card, checking the table contract, generating a deterministic preparation script, implementing the Canvas interaction, revising documentation, and drafting automated checks.
 
-Human verification required during class: inspect the chosen source annotations, justify the task and graph semantics, review the code changes, perform the browser/deployment check in the actual class environment, and sign the student project’s Appendix B. Do not represent assistant-generated code checks as an instructor’s completed review.
+No AI-generated airport names, coordinates, routes, or class labels were added. The interface intentionally limits claims to the published fields and derived graph measures.
 
-## Prompt examples
+## Human verification checklist
 
-- “Read this dataset card and tiny public sample. Identify fields and uncertainty; do not invent units or relations.”
-- “Propose an accessible linked 3D/network/table view for this task. Explain the meaning of each edge.”
-- “Review this patch for coordinate-transform mistakes. Show a reproducible check.”
-- “Which claims does this small formative evaluation fail to support? Suggest a simpler baseline.”
+- Confirm the selected Hugging Face revision and per-graph counts against the dataset card.
+- Review the raw-label-to-display-label mapping (0–3 shown as Q1–Q4).
+- Test region switching, quartile filters, node search, selection, pan, zoom, keyboard controls, and downloads.
+- Confirm that the view is described as topological rather than geographic.
+- Review the upstream license and citation before submission or redistribution.
+- Record accepted and rejected AI suggestions in the course’s required disclosure format.
 
-## Student log
+## Assistance log
 
-| Model/tool and date | Purpose / prompt | Accepted or rejected | Human check and revision |
+| Tool and date | Purpose | Output retained | Human check |
 |---|---|---|---|
-| To be completed by the student | | | |
-
-Use GPT-6 capabilities only where available in the approved workspace; the current official guide is https://developers.openai.com/api/docs/guides/latest-model . Record the actual tool/model used rather than a requested model name. Initial observations and oral explanation are Human-Only; development is AI-Assisted. No paid model access is required.
+| OpenAI coding assistant · 2026-09-08 | Adapt the starter into a NEExT airport node-link explorer | Code, preparation script, documentation, tests | To be completed by the student |

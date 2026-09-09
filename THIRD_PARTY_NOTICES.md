@@ -1,7 +1,11 @@
 # Third-party notices
 
-The files `dist/data/scene.json`, `parts.json` and `scene-manifest.json` contain or describe a derivative teaching extract from SceneFun3D via Voxel51. Data license: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International. License text and conditions: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.en . Retain this notice and attribution when redistributing the data or adaptations.
+Files in `dist/data/airports/` reproduce or derive from the `airports` subset of [`anomalypoint/NEExT`](https://huggingface.co/datasets/anomalypoint/NEExT), pinned revision `36114f8da77d4fe5b4700a7ff2673b15901a6caf`.
 
-Citation: Delitzas, A., Takmaz, A., Tombari, F., Sumner, R. W., Pollefeys, M., & Engelmann, F. (2024). *SceneFun3D: Fine-Grained Functionality and Affordance Understanding in 3D Scenes*. CVPR 2024. https://scenefun3d.github.io/ . Conversion: Voxel51, https://huggingface.co/datasets/Voxel51/SceneFun3D .
+The NEExT dataset card identifies the upstream airport networks as originating from the `leoribeiro/struc2vec` repository and lists the subset license as MIT. Retain this notice and the original citation when redistributing the data:
 
-Changes: deterministic downsampling, common coordinate translation, numeric rounding, metadata selection, and display IDs. The original labels and task text are retained. The MIT license in this repository applies to new code and constructed teaching data only, and does not override the third-party data license.
+Ribeiro, L. F. R., Savarese, P. H. P., & Figueiredo, D. R. (2017). *struc2vec: Learning Node Representations from Structural Identity*. Proceedings of the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining.
+
+Repository: https://github.com/leoribeiro/struc2vec
+
+Changes in the browser JSON: CSV parsing, undirected edge normalization, degree calculation, deterministic force-directed coordinates, numeric rounding, and display metadata. The source node IDs and `activity_quartile` labels remain available in the copied CSVs.
