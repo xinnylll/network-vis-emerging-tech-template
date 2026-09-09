@@ -1,9 +1,9 @@
 {
   "name": "network-vis-emerging-tech-template",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "INFOSCI 301 Week 3: network, tree and real 3D affordance evidence explorer",
+  "description": "INFOSCI 301: interactive NEExT airport network visualization",
   "scripts": {"dev": "node scripts/serve.mjs", "check": "node scripts/validate.mjs", "build": "node scripts/validate.mjs"},
   "engines": {"node": ">=20"},
   "license": "MIT"

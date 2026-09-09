@@ -1,17 +1,94 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>INFOSCI 301 · Evidence in Space</title><link rel="stylesheet" href="styles.css"></head>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive node-link visualization of the NEExT airport networks.">
+  <title>NEExT Airport Network Explorer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
 <body>
-<header><a class="brand" href="index.html"><span class="brandmark">301</span> INFOSCI / FIELD LAB</a><span>WEEK 03 · NETWORKS + EMBODIED AI</span><a href="deploy.html">Deploy your copy ↗</a></header>
-<main>
-<section class="intro"><p class="eyebrow">OBSERVE · CONNECT · QUESTION</p><h1>Evidence in space.</h1><p class="lede">Explore how a network describes relationships, and how a real 3D scan constrains what we can claim about an environment.</p><div class="tags"><span>Real SceneFun3D extract</span><span>18,000 points · 7 affordances · 5 exclusions</span><span>Runs without an AI key</span></div></section>
-<nav aria-label="Lab modules" class="tabs"><button data-tab="space" aria-selected="true">01 / 3D affordance explorer</button><button data-tab="network" aria-selected="false">02 / Networks & trees</button><button data-tab="studio" aria-selected="false">03 / Redesign studio</button></nav>
-<section id="space" class="tab-panel">
-<div class="workspace"><div class="stage"><div class="stage-top"><div><span class="status-dot"></span> SCENE 421061 / TRAIN EXTRACT</div><button id="reset">Reset view</button></div><canvas id="scene" tabindex="0" aria-label="Interactive 3D point cloud. Drag to orbit, scroll to zoom. Use arrow keys to orbit and plus or minus to zoom. The part table below contains the annotations."></canvas><div class="stage-bottom"><span id="scene-status" aria-live="polite">Loading bundled scan…</span><span>DRAG TO ORBIT · SCROLL TO ZOOM</span></div><div class="controls"><button id="left" aria-label="Orbit left">← Orbit</button><button id="right" aria-label="Orbit right">Orbit →</button><button id="zoomIn">+ Zoom</button><button id="zoomOut">− Zoom</button><label><input id="boxes" type="checkbox" checked> Selected annotation</label></div></div>
-<aside class="inspector"><p class="eyebrow">ANNOTATION INSPECTOR</p><h2>Follow one part.</h2><label for="part">Source annotation</label><select id="part"></select><div id="part-detail" aria-live="polite"></div><p class="note">A colored box locates an annotated part. The yellow line shows the supplied motion axis or direction; it does not show a tested robot trajectory.</p></aside></div>
-<div class="below"><article><p class="eyebrow">LINKED EVIDENCE NETWORK</p><h2>What does this annotation connect?</h2><div id="part-graph" class="part-graph"></div><p class="caption">Edges mean “contains,” “has annotated affordance,” and “has task description.” Task text is source metadata, not proof of successful action.</p></article><article class="audit"><p class="eyebrow">GOVERNANCE CHECK</p><h2>Visible assumptions.</h2><dl><dt>Source</dt><dd>SceneFun3D → Voxel51 Hugging Face conversion → deterministic teaching extract.</dd><dt>Data terms</dt><dd>CC BY-NC-SA 4.0. Attribution, noncommercial use and share-alike conditions apply.</dd><dt>Limits</dt><dd>One training scene; 7 affordance and 5 “exclude” annotations. The source excludes poorly captured geometry from evaluation. Downsampling can hide small parts. No policy inference, simulation, or physical safety test.</dd><dt>Next evidence</dt><dd>Collect a small, documented table of annotation ambiguity and viewpoint visibility.</dd></dl><a href="data/scene-manifest.json">Download provenance manifest ↗</a></article></div>
-<details><summary>Accessible annotation table and raw data</summary><div class="table-wrap"><table id="parts-table"><thead><tr><th>Part</th><th>Affordance</th><th>Motion</th><th>Task descriptions</th><th>Centered location</th></tr></thead><tbody></tbody></table></div><p><a href="data/parts.json">Annotations JSON</a> · <a href="data/scene.json">Point cloud JSON</a> · <a href="https://huggingface.co/datasets/Voxel51/SceneFun3D">Original dataset card</a></p></details>
-</section>
-<section id="network" class="tab-panel" hidden><div class="section-heading"><div><p class="eyebrow">ONE GRAPH · TWO IDIOMS</p><h2>Change the view. Keep the meaning.</h2></div><div class="segmented"><button id="node-view" aria-pressed="true">Node–link</button><button id="matrix-view" aria-pressed="false">Matrix</button><button id="tree-view" aria-pressed="false">Spanning tree</button></div></div><div class="network-grid"><div class="network-stage" id="network-viz"></div><aside class="inspector"><p class="eyebrow">TASK CARD</p><h3 id="graph-question">Trace A → B → D.</h3><p>Click a node or a row label to inspect its neighbors. Compare how the idiom changes your answer time and errors.</p><div id="network-detail" aria-live="polite"></div><div class="metric"><strong>8</strong><span>nodes</span><strong>11</strong><span>edges</span></div><p class="note">Constructed teaching data. Binary, undirected, no self-loops. Edges represent documented dependencies in this toy example.</p><a href="data/edges.csv">Download edge list</a></aside></div><details><summary>Network edge table and static comparison</summary><div id="edge-table"></div><img src="data/network-matrix.svg" alt="The same eight-node graph as a node-link diagram and a binary adjacency matrix" class="full-image"></details></section>
-<section id="studio" class="tab-panel" hidden><p class="eyebrow">FROM REFLECTION II TO A FORMAL PROJECT</p><h2>Turn a criticism into a testable redesign.</h2><div class="cards"><article><span class="step">01</span><h3>Question a published claim</h3><p>Choose an IEEE VIS publication from 2024–2026. Locate evidence at domain, data/task, idiom and algorithm levels. Separate “not reported” from “not performed.”</p></article><article><span class="step">02</span><h3>Add data + technology</h3><p>Specify a new data contribution and a justified emerging technology. Explain the join, uncertainty, licensing, and how each changes the user task.</p></article><article><span class="step">03</span><h3>Validate the revision</h3><p>Compare against a baseline. Record task accuracy, comprehension or performance as appropriate. Report what your small evaluation cannot establish.</p></article></div><div class="below"><article><h3>Five repository directions</h3><ol><li>AI evidence network: claims, papers and evidence.</li><li>Model–dataset lineage: training sources and reuse conditions.</li><li>Blockchain relationships: public transactions and privacy.</li><li>Cultural heritage: objects, places and community authority.</li><li>Embodied AI: 3D parts, affordances and task descriptions.</li></ol></article><article><h3>Download the notebooks</h3><p><a href="notebooks/INFOSCI301_Week3_Networks_Trees_Python.ipynb">Networks and trees · Python</a></p><p><a href="notebooks/INFOSCI301_Week3_Networks_Trees_R.ipynb">Networks and trees · R</a></p><p><a href="notebooks/INFOSCI301_Week3_EmbodiedAI_Data_Preparation.ipynb">3D data preparation · Python</a></p><p class="note">Use Jupyter / Colab for Python, and an R kernel for the R notebook. Repository-specific Colab links are generated after the instructor sets the GitHub URL.</p></article></div><article class="ai-note"><h3>Use GPT-6 as a development partner</h3><p>Ask it to explain an unfamiliar schema, propose an accessible linked view, review a patch or identify a missing test. Supply the dataset card and a tiny non-sensitive sample. Check every field and claim against the source. Log accepted and rejected suggestions. This demo performs no model inference and requires no paid API.</p></article></section>
-<footer><p>INFOSCI 301 · Prof. Luyao Zhang · Week 3 / September 2026</p><p><a href="https://scenefun3d.github.io/">SceneFun3D, Delitzas et al., CVPR 2024</a> · <a href="https://huggingface.co/datasets/Voxel51/SceneFun3D">HF conversion</a> · <a href="https://www.cs.ubc.ca/~tmm/vadbook/">Munzner, Visualization Analysis and Design, 2014</a></p><p>SceneFun3D is a practice dataset; its CVPR paper does not meet the assignment’s IEEE VIS publication requirement.</p></footer>
-</main><script type="module" src="app.js"></script></body></html>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brandmark">N</span><span>NEExT / AIR ROUTES</span></a>
+    <span class="course-label">INFOSCI 301 · NETWORK VISUALIZATION</span>
+    <a href="https://huggingface.co/datasets/anomalypoint/NEExT" target="_blank" rel="noreferrer">Dataset ↗</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">AIR TRANSPORTATION · NODE–LINK DIAGRAM</p>
+      <h1>The shape of flight activity.</h1>
+      <p class="lede">Explore how airports connect through commercial flight routes across three NEExT networks. Color encodes each airport’s flight-activity quartile; size encodes its number of direct connections.</p>
+      <div class="tags" aria-label="Dataset summary">
+        <span>Nodes · airports</span><span>Edges · commercial routes</span><span>Attribute · activity quartile</span><span>Brazil · Europe · USA</span>
+      </div>
+    </section>
+
+    <section class="explorer" aria-labelledby="explorer-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">INTERACTIVE EXPLORER</p><h2 id="explorer-title">One dataset, three regional networks.</h2></div>
+        <div class="region-switcher" role="group" aria-label="Choose regional network">
+          <button data-region="brazil" aria-pressed="true">Brazil</button><button data-region="europe" aria-pressed="false">Europe</button><button data-region="usa" aria-pressed="false">USA</button>
+        </div>
+      </div>
+
+      <div class="network-grid">
+        <div class="network-panel">
+          <div class="panel-top"><span><span class="status-dot"></span><strong id="region-name">Brazil</strong> network</span><span id="network-status" aria-live="polite">Loading network…</span></div>
+          <canvas id="network-canvas" tabindex="0" aria-label="Interactive node-link diagram of airports and commercial flight routes. Drag to pan, scroll to zoom, and click a node to inspect it."></canvas>
+          <div class="legend" aria-label="Flight activity quartile filters">
+            <span class="legend-title">ACTIVITY QUARTILE</span>
+            <button class="quartile-filter q0" data-quartile="0" aria-pressed="true"><i></i>Q1 <small>label 0</small></button>
+            <button class="quartile-filter q1" data-quartile="1" aria-pressed="true"><i></i>Q2 <small>label 1</small></button>
+            <button class="quartile-filter q2" data-quartile="2" aria-pressed="true"><i></i>Q3 <small>label 2</small></button>
+            <button class="quartile-filter q3" data-quartile="3" aria-pressed="true"><i></i>Q4 <small>label 3</small></button>
+          </div>
+          <div class="canvas-controls">
+            <button id="zoom-in" aria-label="Zoom in">＋ Zoom</button><button id="zoom-out" aria-label="Zoom out">− Zoom</button><button id="reset-view">Reset view</button>
+            <label><input id="show-labels" type="checkbox" checked> Label hubs</label><span>DRAG TO PAN · SCROLL TO ZOOM · CLICK TO INSPECT</span>
+          </div>
+        </div>
+
+        <aside class="inspector">
+          <p class="eyebrow">NODE INSPECTOR</p><h2>Follow an airport.</h2>
+          <form id="node-search-form" class="node-search">
+            <label for="node-search">Airport node ID</label>
+            <div><input id="node-search" list="node-options" inputmode="numeric" autocomplete="off" placeholder="Enter an ID"><button type="submit">Find</button></div>
+            <datalist id="node-options"></datalist><p id="search-message" class="form-message" aria-live="polite"></p>
+          </form>
+          <div id="node-detail" aria-live="polite"></div>
+          <div class="summary-metrics" aria-label="Network summary">
+            <div><strong id="node-count">—</strong><span>airports</span></div><div><strong id="edge-count">—</strong><span>routes</span></div>
+            <div><strong id="density">—</strong><span>density</span></div><div><strong id="mean-degree">—</strong><span>mean degree</span></div>
+          </div>
+          <p class="note">Node IDs are dataset identifiers, not airport codes. The source provides no airport names or coordinates, so this is a topology layout—not a geographic map.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="below">
+      <article><p class="eyebrow">QUARTILE PROFILE</p><h2>How does connectivity vary by class?</h2><div id="quartile-profile" class="quartile-profile"></div><p class="caption">Bar length shows mean degree within each class. Quartile is a supplied node label; degree is calculated from the displayed route network.</p></article>
+      <article class="audit">
+        <p class="eyebrow">READING THE VIEW</p><h2>What the diagram establishes.</h2>
+        <dl><dt>Position</dt><dd>Derived from network adjacency with a force-directed layout. Nearby marks are not necessarily geographically close.</dd><dt>Color</dt><dd>Flight-activity quartile, shown as Q1–Q4 while retaining raw labels 0–3.</dd><dt>Size</dt><dd>Degree: the count of unique commercial-route connections in this undirected graph.</dd><dt>Limits</dt><dd>No airport names, route frequency, direction, distance, time, or geography are included.</dd></dl>
+        <a href="data/airports/manifest.json">Download provenance manifest ↗</a>
+      </article>
+    </section>
+
+    <details>
+      <summary>Accessible hub table and raw data</summary>
+      <div class="table-wrap"><table><thead><tr><th>Node ID</th><th>Activity quartile</th><th>Degree</th><th>Share of all routes</th></tr></thead><tbody id="hub-table"></tbody></table></div>
+      <p id="downloads"></p>
+    </details>
+
+    <section class="method">
+      <div><span>01</span><h3>Choose a region</h3><p>Compare three independent airport networks from the same dataset contract.</p></div>
+      <div><span>02</span><h3>Filter a class</h3><p>Toggle activity quartiles to see where each supplied structural label appears.</p></div>
+      <div><span>03</span><h3>Inspect a node</h3><p>Select an airport to highlight its direct routes and neighbor-class composition.</p></div>
+    </section>
+  </main>
+
+  <footer><p>Data: <a href="https://huggingface.co/datasets/anomalypoint/NEExT" target="_blank" rel="noreferrer">anomalypoint/NEExT</a>, airports subset. Upstream: Ribeiro, Saverese &amp; Figueiredo, <em>struc2vec</em>, KDD 2017.</p><p>Dataset terms: MIT per the NEExT airport data card. Visualization code: MIT.</p></footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

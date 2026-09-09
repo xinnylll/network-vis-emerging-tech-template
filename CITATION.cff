@@ -1,35 +1,29 @@
 cff-version: 1.2.0
-message: "Cite the original SceneFun3D paper and the pinned Hugging Face conversion when using the 3D data."
-title: "INFOSCI 301 Week 3: Evidence in Space teaching template"
+message: "Cite the upstream struc2vec paper and the pinned NEExT dataset when using the airport data."
+title: "NEExT Airport Network Explorer"
 type: software
-version: 1.0.0
+version: 2.0.0
 date-released: 2026-09-08
 license: MIT
 authors:
   - name: "INFOSCI 301 teaching contributors"
 references:
   - type: conference-paper
-    title: "SceneFun3D: Fine-Grained Functionality and Affordance Understanding in 3D Scenes"
-    year: 2024
+    title: "struc2vec: Learning Node Representations from Structural Identity"
+    year: 2017
     conference:
-      name: "IEEE/CVF Conference on Computer Vision and Pattern Recognition"
+      name: "23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining"
     authors:
-      - family-names: Delitzas
-        given-names: Alexandros
-      - family-names: Takmaz
-        given-names: Ayça
-      - family-names: Tombari
-        given-names: Federico
-      - family-names: Sumner
-        given-names: Robert W.
-      - family-names: Pollefeys
-        given-names: Marc
-      - family-names: Engelmann
-        given-names: Francis
-    url: "https://scenefun3d.github.io/"
+      - family-names: Ribeiro
+        given-names: Leonardo F. R.
+      - family-names: Savarese
+        given-names: Pedro H. P.
+      - family-names: Figueiredo
+        given-names: Daniel R.
+    url: "https://github.com/leoribeiro/struc2vec"
   - type: data
-    title: "Voxel51/SceneFun3D — revision 76803371aae67277cfa0cc29804db2368c6756ce"
+    title: "anomalypoint/NEExT — airports subset, revision 36114f8da77d4fe5b4700a7ff2673b15901a6caf"
     authors:
-      - name: Voxel51
-    url: "https://huggingface.co/datasets/Voxel51/SceneFun3D"
-    license: CC-BY-NC-SA-4.0
+      - name: anomalypoint
+    url: "https://huggingface.co/datasets/anomalypoint/NEExT"
+    license: MIT
